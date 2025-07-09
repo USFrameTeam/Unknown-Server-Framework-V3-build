@@ -1,0 +1,30 @@
+{
+    "format_version": 2,
+    "header": {
+        "description": "By 凋空凌\n此为EarthDLL的usf项目重写",
+        "name": "服务器管理模块-Unknow Server Module 支持mc版本：<1.21.80>",
+        "uuid": "270ce464-c538-4ecc-bd24-52343b65b224",
+        "version": [1, 0, 0],
+        "min_engine_version": [1, 21, 90]
+    },
+    "modules": [
+        {
+            "description": "By 凋空凌",
+            "type": "script",
+            "language":"javascript",
+            "uuid": "e3552db5-7dfa-4530-b4f2-ac53a49f65ff",
+            "version": [1, 0, 0],
+            "entry": "scripts/mainActivity.js"
+        }
+    ],
+    "dependencies": [
+      {
+        "module_name": "@minecraft/server",
+        "version": "2.1.0-beta"
+      },
+      {
+        "module_name": "@minecraft/server-ui",
+        "version": "2.1.0-beta"
+      }
+    ]
+}
