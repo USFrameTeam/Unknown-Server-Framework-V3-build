@@ -9,9 +9,9 @@
 ```
 		服务器目录
 		    └───── bedrock_server
-		    		 ├───server.properties
-		    		 ├───config.json
-		    		 └───usf_manager.jar
+                ├───server.properties
+                ├───config.json
+                └───usf_manager.jar
 ```
  运行
 ```
