@@ -1,0 +1,24 @@
+[
+	{
+		"minecraft:version": [
+			1,
+			21,
+			111
+		],
+		"version": [
+			3,
+			1,
+			8
+		],
+		"url": [
+			{
+				"github": "https://github.com/user-attachments/files/22682281/V3.1.8-B.zip",
+				"description": "github原链接"
+			},
+			{
+				"bgithub": "https://bgithub.xyz/user-attachments/files/22682281/V3.1.8-B.zip",
+				"description": "github镜像站（bgithub.xyz）"
+			}
+		]
+	}
+]
