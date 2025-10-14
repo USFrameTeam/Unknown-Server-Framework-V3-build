@@ -12,6 +12,7 @@ mc.world.beforeEvents.playerPlaceBlock.subscribe((event)=>{
     }
   };
   sendLog({
+  	type: "Log",
 		filePath: "usf_log/player/",
 		fileName: event.player.name,
 		data: `放置方块 ${event.block.typeId} 在 x: ${event.block.x}, y: ${event.block.y}, z: ${event.block.z} `

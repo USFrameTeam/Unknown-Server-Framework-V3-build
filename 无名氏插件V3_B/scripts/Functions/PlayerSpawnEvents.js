@@ -8,6 +8,7 @@ mc.world.afterEvents.playerSpawn.subscribe((event)=>{
     USFPlayer.getId(event.player);
   };
   sendLog({
+  	type: "Log",
 		filePath: "usf_log/player/",
 		fileName: event.player.name,
 		data: `玩家生成在 x: ${event.player.location.x}, y: ${event.player.location.y}, z: ${event.player.location.z} `

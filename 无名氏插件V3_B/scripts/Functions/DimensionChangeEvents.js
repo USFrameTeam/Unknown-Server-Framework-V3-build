@@ -4,6 +4,7 @@ import { sendLog } from "../logServer/server.js"
 mc.world.afterEvents.playerDimensionChange.subscribe((event)=>{
   delete event.player.land;
   sendLog({
+  	type: "Log",
 		filePath: "usf_log/player/",
 		fileName: event.player.name,
 		data: `从 ${ event.fromDimension.id } 去了 ${ event.toDimension.id }`

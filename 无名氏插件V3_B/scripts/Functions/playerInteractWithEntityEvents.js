@@ -12,6 +12,7 @@ mc.world.beforeEvents.playerInteractWithEntity.subscribe((event)=>{
     }
   };
   sendLog({
+  	type: "Log",
 		filePath: "usf_log/player/",
 		fileName: event.player.name,
 		data: `与实体 ${event.target.typeId} 在 x: ${event.target.location.x}, y: ${event.target.location.y}, z: ${event.target.location.z} `
