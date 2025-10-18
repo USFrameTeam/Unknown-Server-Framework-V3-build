@@ -41,7 +41,9 @@ public class NeoUSFDownload {
 			System.out.println("输入下载链接");
 			url = input.next();
 		};
-		Main.neoUSFVersion = urls.getJSONArray("version");
+		if(urls != null){
+			Main.neoUSFVersion = urls.getJSONArray("version");
+		}
 		System.out.println("下载中（长时间下载不了为无法下载或链接不稳定）");
 		download(url, Main.JarPath + "/NeoUsf.mcpack");
 		System.out.println("下载完成，正在安装");
@@ -50,7 +52,12 @@ public class NeoUSFDownload {
 		usfPack.delete();
 		try
 		{
-			Files.copy(Paths.get(unzipPath + "manifest.json"), Paths.get(unzipPath + "/manifest_server.json"), StandardCopyOption.REPLACE_EXISTING);
+			BufferedReader NeoUSFServerJSONFile = new BufferedReader(new FileReader(unzipPath + "/manifest_server.json"));
+			String NeoUSFServerJSON = "";
+			String JSONLine;
+			while((JSONLine = NeoUSFServerJSONFile.readLine()) != null){
+				NeoUSFServerJSON += JSONLine.replaceAll("(?s)(//.*?$)|(/\\*.*?\\*/)", "");
+			}
 		}
 		catch (Exception e)
 		{

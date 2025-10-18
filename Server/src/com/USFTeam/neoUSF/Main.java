@@ -32,11 +32,13 @@ public class Main {
 		} ;
 		try {
 			//解析json/property
-			String usfJsonStr = new String(Files.readAllBytes(Paths.get(usf_json.getPath())), StandardCharsets.UTF_8);
+			//解析neousf_config.json
+			String usfJsonStr = new String(Files.readAllBytes(Paths.get(usf_json.getPath())), StandardCharsets.UTF_8).replaceAll("(?s)(//.*?$)|(/\\*.*?\\*/)", "");
 			JSONObject logServerSetting = new JSONObject(usfJsonStr).getJSONObject("logServer");
 			STARTLOG = logServerSetting.getBoolean("run");
 			ADDRESS = logServerSetting.getString("logAddress");
 			PORT = logServerSetting.getInt("port");
+			//获取存档
 			mc_prop.load(new FileInputStream(mc_prop_file));
 			String saveFileName = mc_prop.getProperty("level-name");
 			File save_path = new File(JarPath + "/worlds/" + saveFileName);
@@ -49,37 +51,26 @@ public class Main {
 				return;
 			};
 			
-			//存档文件获取
+			//存档行为包文件夹创建
 			if(new File(save_path.getPath() + "/behavior_packs/").exists() == false){
 				new File(save_path.getPath() + "/behavior_packs/").mkdirs();
 			};
-			File[] behaviorPacks = new File(save_path.getPath() + "/behavior_packs").listFiles();
+			
 			File neoUsfBehPack = new File(save_path.getPath() + "/behavior_packs/NeoUSF/");
 			//获取mc版本
 			NBTReader levelReader = new NBTReader(new File(save_path.getPath() + "/level.dat"));
-			//System.out.println(levelStr);
 			levelReader.skip(8);
 			JSONObject leveldata = new JSONObject(levelReader.readAsJSON());
-			//System.out.println(leveldata.toString());
 			JSONArray mcVersion = leveldata.getJSONArray("MinimumCompatibleClientVersion");
 			
 			//检测NeoUSF包
 			boolean hasNeoUSFPack = false;
-			for(int index = 0; index < behaviorPacks.length; index++){
-				if(!new File(behaviorPacks[index].getPath() + "/manifest.json").exists()){
-					continue;
-				}
-				byte[] info = Files.readAllBytes(Paths.get(behaviorPacks[index].getPath() + "/manifest.json"));
-				String manifestString = new String(info, StandardCharsets.UTF_8);
-				JSONObject manifestJSON = new JSONObject(manifestString);
-				JSONObject manifestHeader = manifestJSON.getJSONObject("header");
-				if(manifestHeader.getString("uuid").equals("270ce464-c538-4ecc-bd24-52343b65b224")){
-					neoUsfBehPack = new File(behaviorPacks[index].getPath());
-					neoUSFVersion = manifestHeader.getJSONArray("version");
-					hasNeoUSFPack = true;
-					break;
-				};
+			JSONObject NeoUSFManifest = NeoUSFPack.getManifestFromPacks(save_path.getPath() + "/behavior_packs");
+			if(NeoUSFManifest != null){
+				hasNeoUSFPack = true;
+				neoUSFVersion = NeoUSFManifest.getJSONObject("header").getJSONArray("version");
 			};
+			
 			System.out.println("mc版本：" + mcVersion.toString());
 			if(!hasNeoUSFPack){
 				System.out.println("检测到没有NeoUSF，是否下载NeoUSF[y/n]");
@@ -92,15 +83,23 @@ public class Main {
 				
 			} else {
 				System.out.println("NeoUSF版本：" + neoUSFVersion.toString());
-				JSONArray netNeoUSFVersion = NeoUSFDownload.getVersion(new int[]{mcVersion.getInt(0), mcVersion.getInt(1), mcVersion.getInt(2)}).getJSONArray("version");
-				if(neoUSFVersion.toString().equals(neoUSFVersion)){
+				System.out.println("是否检测NeoUSF版本？[y/n]");
+				if(userInput.next().equals("y")){JSONArray netNeoUSFVersion = NeoUSFDownload.getVersion(new int[]{mcVersion.getInt(0), mcVersion.getInt(1), mcVersion.getInt(2)}).getJSONArray("version");
+				if(neoUSFVersion.toString().equals(netNeoUSFVersion.toString())){
 					System.out.println("已是最新版本");
 				} else {
 					System.out.println("下载新版本");
 					NeoUSFDownload.launch(new int[]{mcVersion.getInt(0), mcVersion.getInt(1), mcVersion.getInt(2)}, neoUsfBehPack.getPath());
-				}
+				}}
 			};
 			
+			//检测目前NeoUSF版本
+			NeoUSFManifest = NeoUSFPack.getManifestFromPacks(save_path.getPath() + "/behavior_packs");
+			if(NeoUSFManifest == null){
+				System.out.println("读取NeoUSF失败");
+				return;
+			};
+			neoUSFVersion = NeoUSFManifest.getJSONObject("header").getJSONArray("version");
 			//world_behavior_pack.json处理
 			FileInputStream wbh = new FileInputStream(save_path.getPath() + "/world_behavior_packs.json");
 			String wbhJsonStr = new String(
@@ -113,7 +112,7 @@ public class Main {
 			boolean noUSF = true;
 			for (int index = 0; index < bh_list.length(); index++) {
 				if (bh_list.getJSONObject(index).getString("pack_id").equals("270ce464-c538-4ecc-bd24-52343b65b224")) {
-					if(!bh_list.getJSONObject(index).getString("version").toString().equals(neoUSFVersion)){
+					if(!bh_list.getJSONObject(index).getJSONArray("version").toString().equals(neoUSFVersion.toString())){
 						bh_list.getJSONObject(index).put("version", neoUSFVersion);
 					}
 					noUSF = false;
@@ -122,10 +121,32 @@ public class Main {
 			} ;
 			if (noUSF) {
 				bh_list.put(new JSONObject().put("pack_id", "270ce464-c538-4ecc-bd24-52343b65b224").put("version", neoUSFVersion));
-				Files.write(Paths.get(save_path.getPath() + "/world_behavior_packs.json"),
-						bh_list.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
-				
 			} ;
+			Files.write(Paths.get(save_path.getPath() + "/world_behavior_packs.json"),
+									bh_list.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+			{
+				File apiPermissions = new File(JarPath + "/config/default/permissions.json");
+				if(!apiPermissions.exists()){
+					apiPermissions.createNewFile();
+					Files.write(Paths.get(apiPermissions.getPath()), "{}".getBytes());
+				};
+				byte[] permissionByte = Files.readAllBytes(Paths.get(apiPermissions.getPath()));
+				JSONArray permissionAllowed = new JSONObject(new String(permissionByte, StandardCharsets.UTF_8)).getJSONArray("allowed_modules");
+				for(int NeoUSFPIndex = 0; NeoUSFPIndex < Options.apiPermissions.length; NeoUSFPIndex++){
+					boolean noPermission = true;
+					for(int jsonIndex = 0; jsonIndex < permissionAllowed.length();jsonIndex++){
+						if(permissionAllowed.getString(jsonIndex).equals(Options.apiPermissions[NeoUSFPIndex])){
+							noPermission = false;
+						}
+					};
+					if(noPermission){
+						permissionAllowed.put(Options.apiPermissions[NeoUSFPIndex]);
+					};
+				};
+				JSONObject permissionJSON = new JSONObject();
+				permissionJSON.put("allowed_modules", permissionAllowed);
+				Files.write(Paths.get(apiPermissions.getPath()), permissionJSON.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.WRITE);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("异常");
