@@ -1,8 +1,13 @@
-import "./PlayerInteractWithBlockEvents.js";
 import "./PlayerSpawnEvents.js";
 import "./Command.js";
 import "./TickEvents.js";
-import "./PlayerPlaceBlockEvents.js";
 import "./DimensionChangeEvents.js";
-import "./PlayerBreakBlockEvents.js";
-import "./playerInteractWithEntityEvents.js";
+
+import "./PlayerPlaceBlockBeforeEvents.js";
+import "./PlayerBreakBlockBeforeEvents.js";
+
+import "./PlayerInteractWithBlockBeforeEvents.js";
+import "./playerInteractWithEntityBeforeEvents.js";
+
+import "./chatSendBeforeEvents.js";
+//import "./EntityHurtBeforeEvents.js";

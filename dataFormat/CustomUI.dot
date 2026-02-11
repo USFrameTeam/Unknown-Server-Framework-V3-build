@@ -1,0 +1,44 @@
+digraph {
+	rankdir = LR;
+	
+	自定义UI->{列表UI};
+	列表UI->{
+		类型 [label = "类型（type）"]
+		标题 [label = "标题（title）"]
+		文本 [label = "文本（label）"]
+		唯一id [label = "id"]
+		按钮集 [label = "按钮集（buttons）"]
+		退出UI执行指令 [label = "退出UI执行指令（closeCommands）"]
+	};
+	"按钮数据"->{
+		名称, "字符串[指令]"
+	};
+	
+	类型-> "1";
+	标题-> "String1";
+	文本-> "String2";
+	唯一id -> "String3";
+	按钮集-> "按钮数据";
+	退出UI执行指令-> "指令[]" -> "String4";
+	
+	名称 -> "String5";
+	
+	"String1" [label = "字符串"];
+	"String2" [label = "字符串"];
+	"String3" [label = "字符串"];
+	"String4" [label = "字符串"];
+	"String5" [label = "字符串"];
+}
+/*
+	listUI:
+	{
+		type: 1,
+		title: String,
+		label: String,
+		id: String,
+		buttons: Array< button extends ScriptUI.ActionFormData.button {
+			commandList: []<command>
+		}>
+		closeCommands: commandList[]
+	}
+*/

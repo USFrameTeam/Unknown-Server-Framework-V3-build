@@ -1,140 +1,20 @@
 import {
 	ScriptUI
-} from "../API/UIAPI.js";
+} from "../../utils/UIAPI.js";
 import {
 	UIManager
-} from "./init.js";
+} from "../init.js";
 import {
-	USFPlayer,
-	UUID
-} from "../API/API.js";
+	IDGenerate
+} from "../../utils/API.js";
+import {
+	CustomUI
+} from "../../utils/CustomUI.js";
+import {
+  USFPlayer
+} from "../../utils/PlayerAPI.js";
 import * as mc from "@minecraft/server";
 
-//自定义UI存储
-function CustomUIIO(mode = 0, UIList = [], uuid) {
-	let data = JSON.parse(mc.world.getDynamicProperty("usf:customUI"));
-	switch (mode) {
-		case 0:
-		case "get":
-			let uiDataArray = [];
-			//mc.world.sendMessage(JSON.stringify(data));
-			for (let uiDataStr of data) {
-				uiDataArray.push(CustomUI.toData(uiDataStr));
-			};
-			return uiDataArray;
-			break;
-		case 1:
-		case "set":
-			let uiStringDataArray = [];
-			for (let index = 0; index < UIList.length; index++) {
-				uiStringDataArray.push(CustomUI.getStringData(UIList[index]));
-			};
-			mc.world.setDynamicProperty("usf:customUI", JSON.stringify(uiStringDataArray));
-			break;
-		case 2:
-			for (let uiDataStr of data) {
-				let uiData = CustomUI.toData(uiDataStr);
-				if (uiData.uuid === uuid) {
-					return uiData;
-				}
-			}
-			break;
-	}
-};
-
-//自定义UI类
-export class CustomUI {
-	constructor(uiData) {
-		this.data = uiData;
-		this.ui = (uiData.type === 1 ? new ScriptUI.ActionFormData() : new ScriptUI.ModalFormData());
-		this.ui.setTitle(uiData.title);
-		if(uiData.label)this.ui.setInformation(uiData.label);
-		this.ui.setCloseEvents((player) => {
-			for (let command of this.data.closeCommands) {
-				player.runCommand(command);
-			}
-		});
-		if (uiData.type === 1) {
-			for (let button of uiData.buttonArray) {
-				button.event = (player) => {
-					for (let command of button.commandList) {
-						player.runCommand(command);
-					}
-				};
-				this.ui.addButton(button);
-			}
-		}
-	};
-
-	sendToPlayer(player) {
-		this.ui.sendToPlayer(player);
-	};
-	save() {
-		let UIList = CustomUIIO();
-		for (let index = 0; index < UIList.length; index++) {
-			if (UIList[index].uuid === this.data.uuid) {
-				UIList[index] = this.data;
-				CustomUIIO(1, UIList);
-				return;
-			}
-		};
-		//mc.world.sendMessage(JSON.stringify(this.data));
-		UIList.push(this.data);
-		//mc.world.sendMessage("save--" + JSON.stringify(UIList));
-		CustomUIIO(1, UIList);
-	};
-	remove() {
-		let UIList = CustomUIIO();
-		for (let index = 0; index < UIList.length; index++) {
-			if (UIList[index].uuid === this.data.uuid) {
-				UIList.splice(index, 1);
-			}
-		};
-		CustomUIIO(1, UIList);
-	};
-	static getStringData(uiData) {
-		//mc.world.sendMessage("getStringData--" + JSON.stringify(uiData));
-		switch (uiData.type) {
-			case (1):
-				let strData = `${uiData.type}|${uiData.title}|${uiData.label}|${uiData.uuid}|${JSON.stringify(uiData.closeCommands)}|${JSON.stringify(uiData.buttonArray)}`;
-				//mc.world.sendMessage(strData);
-				return strData;
-				break;
-			case 2:
-				return ``;
-		}
-	};
-
-	static toData(str) {
-		let dataArray = str.split("|");
-		switch (Number(dataArray[0])) {
-			case 1:
-				return {
-					type: Number(dataArray[0]),
-						title: dataArray[1],
-						label: dataArray[2],
-						uuid: dataArray[3],
-						closeCommands: JSON.parse(dataArray[4]),
-						buttonArray: JSON.parse(dataArray[5])
-				}
-				break;
-			case 2:
-				return {
-					type: Number(dataArray[0]),
-						title: dataArray[1],
-						label: dataArray[2],
-						uuid: dataArray[3],
-						closeCommands: JSON.parse(dataArray[4]),
-						buttonArray: JSON.parse(dataArray[5]),
-						event: JSON.parse(dataArray[6])
-				}
-				break;
-		}
-	}
-	static getUIFromUUID(uuid) {
-		return CustomUIIO(2, [], uuid);
-	}
-}
 
 
 //一级界面
@@ -150,7 +30,7 @@ class CustomManagerGUI extends ScriptUI.ActionFormData {
 				new AddCustomUIType().sendToPlayer(player);
 			}
 		}]);
-		let UIList = CustomUIIO(0);
+		let UIList = CustomUI.getCustomUIList(0);
 		for (let buttonData of UIList) {
 			this.addButton({
 				buttonDef: {
@@ -162,7 +42,10 @@ class CustomManagerGUI extends ScriptUI.ActionFormData {
 					}
 				}
 			});
-		}
+		};
+		this.setBeforeSendEvents((player, ui)=>{
+			ui.setFather(new (UIManager.getUI("ManagerGUI"))(player));
+		})
 	};
 	static typeId = "CustomManagerGUI";
 };
@@ -176,12 +59,13 @@ class AddCustomUIType extends ScriptUI.ModalFormData {
 	constructor(title = "", warn = null) {
 		super();
 		this.setTitle(`添加自定义界面`);
+		this.setFather(new CustomManagerGUI());
 		this.setButtonsArray([{
 				typeId: "dropdown",
 				id: "ui_type",
 				label: "界面类型",
 				setting: {
-					items: ["列表", "表单（无效，不知道怎么写信息处理方式）"]
+					items: ["列表", "表单（没做，不知道怎么写信息处理方式）"]
 				}
 			},
 			{
@@ -195,17 +79,22 @@ class AddCustomUIType extends ScriptUI.ModalFormData {
 		]);
 		this.setEvents((player, res) => {
 			if (res.get("ui_type") === 0) {
-				if (res.get("ui_title").includes(";")) {
-					new AddCustomUIType(res.get("ui_title"), "名称不能含“ ; ”").sendToPlayer(player);
+				if (res.get("ui_title").includes("|")) {
+					new AddCustomUIType(res.get("ui_title"), "名称不能含“ | ”").sendToPlayer(player);
 					return;
-				}
+				};
+				let UIList = CustomUI.getCustomUIList();
+				let IDList = [];
+				for(let customUI of UIList){
+					IDList.push(customUI.id);
+				};
 				new CustomListUIOptions({
 					type: 1,
 					title: res.get("ui_title"),
 					label: "",
 					buttonArray: [],
 					closeCommands: [],
-					uuid: UUID()
+					id: IDGenerate(IDList)
 				}).sendToPlayer(player);
 			}
 		});
@@ -278,9 +167,9 @@ class CommandAfterCloseUI extends ScriptUI.ModalFormData {
 		type: 1,
 		title: String,
 		label: String,
-		uuid: String,
-		buttons: Array< button extends ScriptUI.ActionFormData.button {
-			commandList: []<command>
+		id: String,
+		buttons: <button extends ScriptUI.ActionFormData.button>[] {
+			commandList: []
 		}>
 		closeCommands: commandList[]
 	}
@@ -293,7 +182,7 @@ class CustomListUIOptions extends ScriptUI.ActionFormData {
 		label: "",
 		buttonArray: [],
 		closeCommands: [],
-		uuid: undefined
+		id: undefined
 	}) {
 		super();
 		this.setTitle("自定义列表UI");
@@ -425,7 +314,7 @@ class CustomListUIEdit extends ScriptUI.ModalFormData {
 	constructor(uiData) {
 		super();
 		this.setTitle("编辑自定义列表");
-		//this.setInformation(`uuid: ${uiData.uuid}`);
+		//this.setInformation(`id: ${uiData.id}`);
 		this.setButtonsArray([{
 				typeId: "textField",
 				label: "列表名称",
@@ -436,10 +325,10 @@ class CustomListUIEdit extends ScriptUI.ModalFormData {
 			},
 			{
 				typeId: "textField",
-				label: "uuid（复制）",
-				id: "ui_uuid_copy",
+				label: "id（复制）",
+				id: "ui_id_copy",
 				setting: {
-					defaultValue: uiData.uuid
+					defaultValue: uiData.id
 				}
 			},
 			/*{
@@ -477,7 +366,6 @@ class CustomListUIEdit extends ScriptUI.ModalFormData {
 				return;
 			};
 			if (res.get("save")) {
-				//mc.world.sendMessage(JSON.stringify(uiData));
 				new CustomUI(uiData).save();
 				return;
 			};

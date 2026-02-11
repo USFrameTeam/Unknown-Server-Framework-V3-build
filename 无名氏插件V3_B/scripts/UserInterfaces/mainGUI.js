@@ -1,12 +1,12 @@
 import {
 	ScriptUI
-} from "../API/UIAPI.js";
+} from "../utils/UIAPI.js";
 import {
 	UIManager
 } from "./init.js";
 import {
-	USFPlayer
-} from "../API/API.js";
+  USFPlayer
+} from "../utils/PlayerAPI.js";
 import * as mc from "@minecraft/server";
 
 class MainInterface extends ScriptUI.ActionFormData {
@@ -41,7 +41,7 @@ class MainInterface extends ScriptUI.ActionFormData {
 					text: "领地"
 				},
 				condition: (player) => {
-					return JSON.parse(mc.world.getDynamicProperty("usf:.landOptions.enable"));
+					return JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable"));
 				},
 				event: (player) => {
 					new(UIManager.getUI("LandGUI"))().sendToPlayer(player);
@@ -65,7 +65,7 @@ class MainInterface extends ScriptUI.ActionFormData {
 					iconPath: undefined
 				},
 				condition: (player) => {
-					if (USFPlayer.opLevel.getLevel(player) > 0) {
+					if (USFPlayer.managerAPI.getLevelFromPlayer(player) > 0) {
 						return true;
 					};
 					return false;

@@ -1,6 +1,6 @@
 import {
   ScriptUI
-} from "../../API/UIAPI.js";
+} from "../../utils/UIAPI.js";
 import {
   UIManager
 } from "../init.js";
@@ -10,7 +10,7 @@ import * as mc from "@minecraft/server";
 
 
 function scoreBoardDefaultValueIO(id, mode = 0, value = 0) {
-  let scoreBoardDL = JSON.parse(mc.world.getDynamicProperty("usf:.scoreboardDefaultValue"));
+  let scoreBoardDL = JSON.parse(mc.world.getDynamicProperty("usf:scoreboardDefaultValue"));
   if (mode === 0) {
     for (let sb of scoreBoardDL) {
       if (sb.id === id) {
@@ -23,18 +23,18 @@ function scoreBoardDefaultValueIO(id, mode = 0, value = 0) {
     for (let index = 0; index < scoreBoardDL.length; index++) {
       if (scoreBoardDL[index].id === id) {
         scoreBoardDL[index].value = value;
-        mc.world.setDynamicProperty("usf:.scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
+        mc.world.setDynamicProperty("usf:scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
         return;
       }
     };
     scoreBoardDL.push({id, value: value});
-    mc.world.setDynamicProperty("usf:.scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
+    mc.world.setDynamicProperty("usf:scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
   };
   if(mode === 2){
     for (let index = 0; index < scoreBoardDL.length; index++) {
       if (scoreBoardDL[index].id === id) {
         scoreBoardDL.splice(index, 1);
-        mc.world.setDynamicProperty("usf:.scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
+        mc.world.setDynamicProperty("usf:scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
         return;
       }
     };
@@ -44,7 +44,7 @@ function scoreBoardDefaultValueIO(id, mode = 0, value = 0) {
 //总界面
 
 class ScoreBoardGUI extends ScriptUI.ActionFormData {
-  static typeId = "ScoreBoardGUI";
+  static typeId = "Manager_ScoreBoardGUI";
   constructor() {
     super();
     let scoreBoardList = mc.world.scoreboard.getObjectives();

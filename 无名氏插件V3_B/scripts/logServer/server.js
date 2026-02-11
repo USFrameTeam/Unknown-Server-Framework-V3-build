@@ -1,6 +1,6 @@
 import {
 	Log
-} from "../API/API.js";
+} from "../utils/API.js";
 
 /*
 	jsonData: {
@@ -14,12 +14,12 @@ import {
 var logServerOpen = true;
 let logTip = true;
 export function sendLog(jsonData) {
-	if (!logServerOpen){
+	if (!logServerOpen) {
 		return;
 	};
 	jsonData.data = `[${new Date().toString()}]: ` + jsonData.data;
 	import("@minecraft/server-net").then((logServer) => {
-		if(!logServerOpen){
+		if (!logServerOpen) {
 			return;
 		}
 		if (logTip) {
@@ -45,4 +45,18 @@ export function sendLog(jsonData) {
 		logServerOpen = false;
 		Log.log(error);
 	});
-}
+};
+
+/*import("@minecraft/server-net").then((dataPacket) => {
+	dataPacket.beforeEvents.packetReceive.subscribe((packet) => {
+		packet.cancel = true;
+		if(packet.packetId == "InteractPacket"){
+			
+		}
+		Log.log(JSON.stringify(packet));
+	}, {ignoredPacketIds: ["PlayerAuthInputPacket", "SubChunkRequestPacket", "ClientCacheBlobStatusPacket"]});
+}).catch(error => {
+	Log.log("[NeoUSF]--日志服务器不可用\n输入reload指令后重新检测");
+	logServerOpen = false;
+	Log.log(error);
+});*/

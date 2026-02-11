@@ -1,62 +1,32 @@
 import {
   ScriptUI
-} from "../API/UIAPI.js";
+} from "../utils/UIAPI.js";
 import {
   UIManager
 } from "./init.js";
 import {
   USFPlayer
-} from "../API/API.js";
+} from "../utils/PlayerAPI.js";
 import * as mc from "@minecraft/server";
-import "./manager/scoreBoard.js";
-import "./manager/itemEdit.js";
+import "./manager/ScoreBoard.js";
+import "./manager/ItemEdit.js";
+import "./manager/CustomUIGUI.js";
+import "./manager/ChatFormatEdit.js";
+import "./manager/SubordinateManagerGUI.js";
 
 /*
   等级：
   普通玩家：0
-  低级管理：1
-  中级管理：2
-  高级管理：3
-  服主：4
+  管理员：1
+  服主：2
 */
-
-const ManagerDefaultConfig = [{
-    level: 0,
-    power: []
-  },
-  {
-    level: 1,
-    power: [
-      "scoreBoardManager",
-      ""
-    ]
-  },
-  {
-    level: 2,
-    power: []
-  },
-  {
-    level: 3,
-    power: []
-  },
-  {
-    level: 4,
-    power: [
-      "Custom"
-    ]
-  },
-  {
-    level: 5,
-    power: ["All"]
-  }
-]
-
 
 class ManagerInterface extends ScriptUI.ActionFormData {
   static typeId = "ManagerGUI";
   constructor(player) {
     super();
-    let level = USFPlayer.opLevel.getLevel(player);
+    let level = USFPlayer.managerAPI.getLevelFromPlayer(player);
+    let permissions = USFPlayer.managerAPI.getPermissionFromPlayer(player);
     this.setTitle("管理界面");
     this.setFather(new (UIManager.getUI("mainGUI"))());
     this.setButtonsArray([{
@@ -64,18 +34,18 @@ class ManagerInterface extends ScriptUI.ActionFormData {
           text: "设置计分板"
         },
         condition: (player) => {
-          return ManagerDefaultConfig[level].power.includes("scoreBoardManager") || level === 5;
+          return (permissions?.scoreboard === true || level === 2);
         },
         event: (player) => {
-          new (UIManager.getUI("ScoreBoardGUI"))().sendToPlayer(player);
+          new (UIManager.getUI("Manager_ScoreBoardGUI"))().sendToPlayer(player);
         }
       },
       {
         buttonDef: {
-          text: "设置领地"
+          text: "领地管理"
         },
         condition: (player) => {
-          return true;
+          return (permissions?.land === true || level === 2);
         },
         event: (player) => {
           new (UIManager.getUI("LandGUI").managerGUI())().sendToPlayer(player);
@@ -85,6 +55,9 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       	buttonDef: {
       		text: "自定义UI（半完成）"
       	},
+      	condition: (player) => {
+          return (permissions?.customUI === true || level === 2);
+        },
       	event: (player)=>{
       		new (UIManager.getUI("CustomManagerGUI"))().sendToPlayer(player);
       	}
@@ -93,20 +66,62 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       	buttonDef: {
       		text: "自定义物品属性"
       	},
+      	condition: (player) => {
+          return (permissions?.itemEdit === true || level === 2);
+        },
       	event: (player)=>{
-      		new (UIManager.getUI("ItemEditGUI"))(player).sendToPlayer(player);
+      		new (UIManager.getUI("Manager_ItemEditGUI"))(player).sendToPlayer(player);
+      	}
+      },
+      {
+      	buttonDef: {
+      		text: "聊天格式设置"
+      	},
+      	condition: (player) => {
+          return (permissions?.chatFormat === true || level === 2);
+        },
+      	event: (player)=>{
+      		new (UIManager.getUI("Manager_ChatFormatEditGUI"))().sendToPlayer(player);
+      	}
+      },
+      
+      {
+      	buttonDef: {
+      		text: "传送点上限管理"
+      	},
+      	condition: (player) => {
+          return level === 2;
+        },
+      	event: (player)=>{
+      		new (UIManager.getUI("Manager_SubordinateManagerGUI"))(player).sendToPlayer(player);
+      	}
+      },
+      
+      {
+      	buttonDef: {
+      		text: "管理员设置"
+      	},
+      	condition: (player) => {
+          return level === 2;
+        },
+      	event: (player)=>{
+      		new (UIManager.getUI("Manager_SubordinateManagerGUI"))(player).sendToPlayer(player);
       	}
       },
       {
         buttonDef: {
           text: "插件重要设置（未完成）"
         },
+        condition: (player) => {
+          return (level === 2);
+        },
         event: (player)=>{
+        	
         }
       }
     ]);
     this.setBeforeSendEvents((player) => {
-      this.setInformation(`管理等级：${level}`);
+      this.setInformation(`等级：${level === 2 ? "服主" : "管理员"}`);
       if (level === 0) {
         this.cancel = true;
       }

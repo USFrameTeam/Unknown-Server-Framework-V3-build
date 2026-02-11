@@ -1,12 +1,18 @@
 import {
 	ScriptUI
-} from "../../API/UIAPI.js";
+} from "../../utils/UIAPI.js";
 import {
 	UIManager
 } from "../init.js";
 import {
-	USFPlayer,
-	UUID
-} from "../../API/API.js";
+  USFPlayer
+} from "../utils/PlayerAPI.js";
 import * as mc from "@minecraft/server";
 
+mc.system.run(() => {
+  UIManager.addUI(LandGUI);
+});
+
+class ShopInterface extends {
+	
+}

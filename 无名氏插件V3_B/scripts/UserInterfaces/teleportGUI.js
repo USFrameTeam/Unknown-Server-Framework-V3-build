@@ -1,6 +1,6 @@
 import {
   ScriptUI
-} from "../API/UIAPI.js";
+} from "../utils/UIAPI.js";
 import {
   UIManager
 } from "./init.js";
@@ -151,12 +151,22 @@ class PointInfo extends ScriptUI.ActionFormData {
       buttonDef: {
         text: "编辑"
       },
+      condition: (player)=>{
+      	if(type === 0){
+      		
+      	}
+      },
       event: (player) => {
         new PointEditGUI(point, pointIndex, type).sendToPlayer(player);
       }
     }, {
       buttonDef: {
         text: "删除"
+      },
+      condition: (player)=>{
+      	if(type === 0){
+      		
+      	}
       },
       event: (player)=>{
       	new CheckPointDelete(point, pointIndex, type).sendToPlayer(player);
@@ -245,6 +255,9 @@ class TeleportGUI extends ScriptUI.ActionFormData {
       {
       	buttonDef: {
       		text: "玩家互传"
+      	},
+      	event: (player)=>{
+      		
       	}
       }
     ]);
@@ -287,10 +300,13 @@ class PublicWorldPoint extends PointList {
     this.setTitle("世界公共点");
     this.setFather(new TeleportGUI());
     this.setBeforeSendEvents((player, pointList) => {
-      this.setInformation(`世界传送点数：${pointList.length}`);
+      this.setInformation(`世界公共点数：${pointList.length}`);
       this.setButtonsArray([{
         buttonDef: {
           text: "添加传送点"
+        },
+        condition: (player)=>{
+        	
         },
         event: (player) => {
           new AddPoint(2).sendToPlayer(player);
@@ -317,3 +333,37 @@ class CheckPointDelete extends ScriptUI.MessageFormData {
     });
   }
 }
+
+//管理
+class PointsManagerGUI extends ScriptUI.ActionFormData {
+	constructor(){
+		this.setTitle("传送点管理");
+		this.setButtonsArray([
+			{
+				buttonDef: {
+					text: "个人传送点上限设置"
+				},
+				event: (player)=>{
+					
+				}
+			},
+			{
+				buttonDef: {
+					text: "世界公共点设置"
+				},
+				event: (player)=>{
+					
+				}
+			}
+		]);
+	}
+};
+
+/*this.setButtonsArray([{
+        buttonDef: {
+          text: "添加传送点"
+        },
+        event: (player) => {
+          new AddPoint(2).sendToPlayer(player);
+        }
+      }]);*/

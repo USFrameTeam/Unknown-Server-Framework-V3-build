@@ -1,0 +1,20 @@
+import * as mc from "@minecraft/server";
+import {
+  USFPlayer
+} from "../utils/PlayerAPI.js";
+import {
+	Land
+} from "../utils/LandAPI.js";
+import { sendLog } from "../logServer/server.js"
+mc.world.beforeEvents.playerPlaceBlock.subscribe((event)=>{
+	let land = Land.manager.getLandFromPosition(event.block);
+  if((land !== undefined) && !(USFPlayer.getId(event.player) === land.owner.id)){
+    event.cancel = true;
+  }
+  sendLog({
+  	type: "Log",
+		filePath: "usf_log/player/",
+		fileName: event.player.name,
+		data: `放置方块 ${event.block.typeId} 在维度：${event.player.dimension.id}中坐标：x: ${event.block.x}, y: ${event.block.y}, z: ${event.block.z} `
+	});
+});

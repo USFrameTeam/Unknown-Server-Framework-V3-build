@@ -1,0 +1,19 @@
+digraph {
+	rankdir = LR;
+	
+	"Vector2x1" [label = "Vector2"]
+	"Xx1" [label = "X"]
+	"Zx1" [label = "Z"]
+	
+	position [label = "位置(position)"]
+	landIdList [label = "区块所含领地ID列表(landIdList)"]
+	customAreaIdList [label = "区块所含自定义区域ID列表(customAreaIdList)"]
+	ChunkGroup->{
+		position,
+		landIdList,
+		customAreaIdList
+	};
+	position->"Vector2x1";
+	"Vector2x1"->"Xx1";
+	"Vector2x1"->"Zx1";
+}

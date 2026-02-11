@@ -1,14 +1,16 @@
 import * as mc from "@minecraft/server";
 import {
-	USFPlayer,
 	Log
-} from "../API/API.js";
+} from "../utils/API.js";
+import {
+	USFPlayer
+} from "../utils/PlayerAPI.js";
+import {
+	CustomUI
+} from "../utils/CustomUI.js";
 import {
 	UIManager
 } from "../UserInterfaces/init.js";
-import {
-	CustomUI
-} from "../UserInterfaces/CustomUIGUI.js";
 
 import { sendLog } from "../logServer/server.js"
 
@@ -50,7 +52,7 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 					break;
 				} else {
 					mc.world.setDynamicProperty("usf:owner", USFPlayer.getId(source.sourceEntity));
-					USFPlayer.opLevel.setLevel(source.sourceEntity, 5);
+					USFPlayer.managerAPI.setLevelFromPlayer(source.sourceEntity, 2);
 					return {
 						message: "设置成功",
 						status: 0
@@ -58,9 +60,9 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 				}
 				break;
 			case "reset_owner":
-				if (source.sourceType === "Server" || USFPlayer.getId(source.sourceEntity) === mc.world.getDynamicProperty("usf:owner")) {
+				if (source.sourceType === "Server" || USFPlayer.managerAPI.getLevelFromPlayer(source.sourceEntity) === 2) {
+					USFPlayer.managerAPI.setLevelFromID(mc.world.getDynamicProperty("usf:owner"), 0);
 					mc.world.setDynamicProperty("usf:owner", undefined);
-					USFPlayer.opLevel.setLevel(source.sourceEntity, 0);
 					return {
 						message: "已重置服主",
 						status: 0
@@ -87,7 +89,7 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 					}
 					break;
 				};
-				new (UIManager.getUI("ItemEditGUI"))(source.sourceEntity).sendToPlayer(source.sourceEntity);
+				new (UIManager.getUI("Manager_ItemEditGUI"))(source.sourceEntity).sendToPlayer(source.sourceEntity);
 				break;
 		}
 	});
@@ -132,21 +134,5 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 				}
 				break;
 		}
-	});
-	
-	//test
-	/*event.customCommandRegistry.registerCommand({
-		cheatsRequired: false,
-		description: "log-connect",
-		permissionLevel: 2,
-		name: "usf:log",
-		mandatoryParameters: [{
-			name: "log",
-			type: "String"
-		}]
-	}, (source, arg) => {
-		sendLog(JSON.parse(arg));
-	})*/
-	
-	
+	});	
 });

@@ -1,0 +1,72 @@
+digraph {
+	rankdir = LR;
+	landData[label = "领地数据"]
+	chunkId [label = "区块ID(chunkId)"]
+	position [label = "位置(position)"]
+	members [label = "成员ID列表(members)"]
+	owner [label = "领地主信息(owner)"]
+	landName [label = "领地名(name)"]
+	information [label = "领地简介(information)"]
+	
+	ownerName [label = "领地主名称(name)"]
+	
+	permissions [label = "权限(permissions)"]
+	
+	id1[label = "id"]
+	id2[label = "id"]
+	id3[label = "id"]
+	String1[label = "字符串"]
+	String2[label = "字符串"]
+	String3[label = "字符串"]
+	//String4 [label = "字符串"]
+	StringArray1 [label = "字符串[]"]
+	StringArray2 [label = "字符串[]"]
+	"Vector3x1" [label = "Vector3"]
+	"Vector3x2" [label = "Vector3"]
+	PlayerID1[label = "USF.PlayerID"]
+	PlayerID2[label = "USF.PlayerID"]
+	dimensionId [label = "维度id(dimensionId)"]
+
+	landData -> {
+		id1,
+		chunkId,
+		position,
+		members,
+		owner,
+		landName,
+		information,
+		dimensionId
+	};
+	
+	position -> {
+		max,
+		min
+	}
+	
+	owner -> {
+		ownerName,
+		id2
+	};
+
+	landName -> String2;
+	information -> String3;
+
+	id1 -> "Char[3]";
+	id2 -> PlayerID1;
+
+	max -> "Vector3x1";
+	min -> "Vector3x2";
+
+	chunkId -> StringArray1;
+
+	members -> {
+		id3,
+		permissions,
+		memberName
+	};
+	memberName [label = "成员名称"]
+	memberName -> String1;
+	
+	id3 -> PlayerID2;
+	permissions -> StringArray2;
+}

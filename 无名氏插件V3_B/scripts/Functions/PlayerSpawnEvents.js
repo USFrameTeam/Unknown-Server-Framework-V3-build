@@ -1,11 +1,12 @@
 import * as mc from "@minecraft/server";
 import {
   USFPlayer
-} from "../API/API.js";
+} from "../utils/PlayerAPI.js";
 import { sendLog } from "../logServer/server.js"
 mc.world.afterEvents.playerSpawn.subscribe((event)=>{
   if(event.initialSpawn){
     USFPlayer.getId(event.player);
+    USFPlayer.init(event.player);
   };
   sendLog({
   	type: "Log",

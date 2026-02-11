@@ -1,13 +1,16 @@
 import {
 	ScriptUI
-} from "../../API/UIAPI.js";
+} from "../../utils/UIAPI.js";
 import {
 	UIManager
 } from "../init.js";
+import {
+	Log
+} from "../../utils/API.js";
 import * as mc from "@minecraft/server";
 
 class ItemEditGUI extends ScriptUI.ModalFormData {
-	static typeId = "ItemEditGUI";
+	static typeId = "Manager_ItemEditGUI";
 	constructor(player, items) {
 		super();
 		let equipItemComp = player.getComponent("minecraft:equippable");
@@ -31,7 +34,9 @@ class ItemEditGUI extends ScriptUI.ModalFormData {
 						break;
 				}
 			} catch (error) {
-				if(items.mode === 3)return;
+				if(items.mode === 3){
+					Log.error(error);
+				};
 				let unavaiableBlockID = [];
 				for(let blockIDIndex = 0; blockIDIndex < items.items.length; blockIDIndex++){
 					if(!mc.EntityTypes.get(items.items[blockIDIndex])){
@@ -52,6 +57,7 @@ class ItemEditGUI extends ScriptUI.ModalFormData {
 			};
 		}
 		this.setTitle("物品编辑");
+		this.setFather(new (UIManager.getUI("ManagerGUI"))(player));
 		this.setButtonsArray([{
 				typeId: "textField",
 				label: "物品名称",

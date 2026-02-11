@@ -1,10 +1,13 @@
 import * as mc from "@minecraft/server";
 import {
-  Land,
-  USFPlayer,
   Vector
-} from "../API/API.js";
-
+} from "../utils/API.js";
+import {
+  USFPlayer
+} from "../utils/PlayerAPI.js";
+import {
+	Land
+} from "../utils/LandAPI.js";
 let tick = 0;
 //领地边界渲染范围
 const render_range = 32;
@@ -129,19 +132,17 @@ mc.system.runInterval(() => {
         }
       };
       {
-        let landList = Land.manager.getLandList({
-          position: player.location
-        });
-        if (landList.length > 0) {
+        let land = Land.manager.getLandFromPosition(player.location);
+        if (land !== undefined) {
           if (player.onScreenDisplay.isValid) {
-            player.onScreenDisplay.setActionBar(`你在{${landList[0].owner.name}}的领地中\n领地名：${landList[0].name}\n身份：${(USFPlayer.getId(player) === landList[0].owner.id ? "领地主" : "客人")}`);
+            player.onScreenDisplay.setActionBar(`你在{${land.owner.name}}的领地中\n领地名：${land.name}\n身份：${(USFPlayer.getId(player) === land.owner.id ? "领地主" : "客人")}${land.information.length !== 0 ? ("\n" + land.information) : ""}`);
           }
         }
       }
     }
   };
   if (tick % 5 === 0) {
-    let scoreBoardDL = JSON.parse(mc.world.getDynamicProperty("usf:.scoreboardDefaultValue"));
+    let scoreBoardDL = JSON.parse(mc.world.getDynamicProperty("usf:scoreboardDefaultValue"));
     for (let sb_defaultValue of scoreBoardDL) {
       let scoreBoard = mc.world.scoreboard.getObjective(sb_defaultValue.id);
       if (scoreBoard == null) {
@@ -151,7 +152,7 @@ mc.system.runInterval(() => {
           }
           return true;
         });
-        mc.world.setDynamicProperty("usf:.scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
+        mc.world.setDynamicProperty("usf:scoreboardDefaultValue", JSON.stringify(scoreBoardDL));
         continue;
       };
       for (let player of mc.world.getAllPlayers()) {
