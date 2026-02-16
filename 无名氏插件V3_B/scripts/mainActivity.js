@@ -10,15 +10,11 @@ import {
 } from "./Options.js";
 
 const USFVersion = "3.1.10-PR";
-const MinecraftVersion = "1.21.13x";
+const MinecraftVersion = "1.26+";
 
 const DefaultDynamicPropValue = [{
 		key: "usf:playerGenId",
 		value: 1
-	},
-	{
-	  key: "usf:landList",
-	  value: JSON.stringify([])
 	},
 	{
 	  key: "usf:customUI",
@@ -30,6 +26,10 @@ const DefaultDynamicPropValue = [{
 	},
 	{
 		key: "usf:managerList",
+		value: JSON.stringify([])
+	},
+	{
+		key: "usf:teamList",
 		value: JSON.stringify([])
 	}
 ];
@@ -44,7 +44,7 @@ function LoadDefaultConfig(obj, stringValue = "") {
 		if (typeof(obj[data]) === typeof({}) && !Array.isArray(obj[data])) {
 			LoadDefaultConfig(obj[data], stringValue + data + ".");
 		} else {
-			if (mc.world.getDynamicProperty("usf:" + stringValue + "." + data) === undefined) {
+			if (mc.world.getDynamicProperty("usf:" + stringValue + data) === undefined) {
 				mc.world.setDynamicProperty("usf:" + stringValue + data, JSON.stringify(obj[data]));
 				//Log.log("usf:" + stringValue + "." + data);
 			}

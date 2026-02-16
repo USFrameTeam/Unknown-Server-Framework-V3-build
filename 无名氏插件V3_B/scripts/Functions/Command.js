@@ -12,12 +12,14 @@ import {
 	UIManager
 } from "../UserInterfaces/init.js";
 
-import { sendLog } from "../logServer/server.js"
+import {
+	sendLog
+} from "../logServer/server.js"
 
 
 mc.system.beforeEvents.startup.subscribe((event) => {
 	event.customCommandRegistry.registerEnum("usf:manager", ["get_owner", "reset_owner", "item_edit"]);
-	event.customCommandRegistry.registerEnum("usf:func", ["cd", "menu", "tp", "open"]);
+	event.customCommandRegistry.registerEnum("usf:func", ["cd", "menu", "tp", "open", "tpa", "tpaccept"]);
 	event.customCommandRegistry.registerCommand({
 		cheatsRequired: false,
 		description: "usf管理员指令",
@@ -89,7 +91,7 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 					}
 					break;
 				};
-				new (UIManager.getUI("Manager_ItemEditGUI"))(source.sourceEntity).sendToPlayer(source.sourceEntity);
+				new(UIManager.getUI("Manager_ItemEditGUI"))(source.sourceEntity).sendToPlayer(source.sourceEntity);
 				break;
 		}
 	});
@@ -128,11 +130,49 @@ mc.system.beforeEvents.startup.subscribe((event) => {
 				break;
 			case "open":
 				if (source?.sourceEntity.typeId === "minecraft:player") {
-					if (ui_uuid?.length >= 36) {
-						new CustomUI(CustomUI.getUIFromUUID(ui_uuid)).sendToPlayer(source?.sourceEntity);
+					if (ui_uuid?.length === 3) {
+						new CustomUI(CustomUI.getCustomUI(ui_uuid)).sendToPlayer(source?.sourceEntity);
 					}
 				}
 				break;
+			case "tpa":
+			case "tpaccept": {
+				if(source?.sourceEntity?.tpPlayerData === undefined){
+					return {
+						message: "无传送请求",
+						status: 1
+					};
+				};
+				if ((Date.now() - source?.sourceEntity?.tpPlayerData.time) > 60 * 1000) {
+					source.sourceEntity.tpPlayerData = undefined;
+					return {
+						message: "已超时",
+						status: 1
+					};
+				};
+				if (source?.sourceEntity?.tpPlayerData) {
+					if (source?.sourceEntity?.tpPlayerData.dir) {
+						mc.system.run(() => {
+							source.sourceEntity.teleport(source.sourceEntity.tpPlayerData.player.location, {
+								dimension: source.sourceEntity.tpPlayerData.player.dimension
+							});
+							source.sourceEntity.tpPlayerData = undefined;
+						});
+					} else {
+						mc.system.run(() => {
+							source.sourceEntity.tpPlayerData.player.teleport(source.sourceEntity.location, {
+								dimension: source.sourceEntity.dimension
+							});
+							source.sourceEntity.tpPlayerData = undefined;
+						});
+					};
+					return {
+						message: "已传送",
+						status: 0
+					};
+				}
+			}
+			break;
 		}
-	});	
+	});
 });

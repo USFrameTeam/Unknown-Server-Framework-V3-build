@@ -7,6 +7,7 @@ import {
 import {
 	USFPlayer
 } from "./PlayerAPI.js";
+import { LZString } from "../libs/lz-string/lz-string.min.js";
 import * as mc from "@minecraft/server";
 
 //自定义UI类
@@ -42,7 +43,7 @@ export class CustomUI {
 		for (let index = 0; index < UIList.length; index++) {
 			if (UIList[index].id === this.data.id) {
 				UIList[index] = this.data;
-				setCustomUIList(UIList);
+				CustomUI.setCustomUIList(UIList);
 				return;
 			}
 		};
@@ -60,11 +61,11 @@ export class CustomUI {
 	};
 	
 	static getStringData(uiData) {
-		return JSON.stringify(uiData);
+		return LZString.compress(JSON.stringify(uiData));
 	};
 
 	static toData(strUIData) {
-		return JSON.parse(strUIData);
+		return JSON.parse(LZString.decompress(strUIData));
 	};
 	
 	static getCustomUIList() {

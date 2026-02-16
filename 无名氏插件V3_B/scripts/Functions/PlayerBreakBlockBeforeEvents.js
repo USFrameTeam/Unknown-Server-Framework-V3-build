@@ -11,13 +11,15 @@ import {
 
 mc.world.beforeEvents.playerBreakBlock.subscribe((event) => {
 	let land = Land.manager.getLandFromPosition(event.block);
-	if ((land !== undefined) && !(USFPlayer.getId(event.player) === land.owner.id)) {
+	if ((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.breakBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))) {
 		event.cancel = true;
 	};
-	sendLog({
-		type: "Log",
-		filePath: "usf_log/player/",
-		fileName: event.player.name,
-		data: `破坏方块 ${event.block.typeId}在维度：${event.player.dimension.id}，在 x: ${event.block.x}, y: ${event.block.y}, z: ${event.block.z} `
+	mc.system.run(() => {
+		sendLog({
+			type: "Log",
+			filePath: "usf_log/player/",
+			fileName: event.player.name,
+			data: `破坏方块 ${event.block.typeId}在维度：${event.player.dimension.id}，在 x: ${event.block.x}, y: ${event.block.y}, z: ${event.block.z} `
+		});
 	});
 });

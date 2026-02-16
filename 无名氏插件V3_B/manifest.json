@@ -2,7 +2,7 @@
 	"format_version": 2,
 	"header": {
 		"description": "By 凋空凌",
-		"name": "服务器管理框架-Unknow Server Frame 支持mc版本：<1.21.11x>",
+		"name": "服务器管理框架-Unknow Server Frame 支持mc版本：<1.26.xx>",
 		"uuid": "270ce464-c538-4ecc-bd24-52343b65b224",
 		"version": [
 			3,
@@ -32,7 +32,7 @@
 	"dependencies": [
 		{
 			"module_name": "@minecraft/server",
-			"version": "2.7.0-beta"
+			"version": "beta"
 		},
 		{
 			"module_name": "@minecraft/server-ui",

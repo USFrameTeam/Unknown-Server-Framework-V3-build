@@ -1,0 +1,38 @@
+digraph {
+	rankdir = LR;
+	Team [label = "队伍"]
+	"idx1" [label = "id: char[3]"]
+	"namex1" [label = "名称(name): String"]
+	members [label = "成员(members): []"]
+	member [label = "member: {}"]
+	setting [label = "设置(setting): String[]"]
+	points [label = "传送点(points): []"]
+	
+	"idx2" [label = "id: USFPlayerID"]
+	"namex2" [label = "name: String"]
+	
+	point [label = "point: {}"]
+	"namex3" [label = "name: String"]
+	sender [label = "sender: String"]
+	location [label = "location: Vector3"]
+	
+	Team->{
+		"idx1",
+		"namex1",
+		members,
+		setting,
+		points
+	};
+	members -> member;
+	points->point;
+	member->{
+		"idx2",
+		"namex2"
+	};
+	
+	point->{
+		"namex3",
+		sender,
+		location
+	}
+}

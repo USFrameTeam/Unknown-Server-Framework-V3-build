@@ -7,6 +7,9 @@ import {
 import {
   USFPlayer
 } from "../utils/PlayerAPI.js";
+import {
+	TexturePath
+} from "./TexturePath.js";
 import * as mc from "@minecraft/server";
 
 class MainInterface extends ScriptUI.ActionFormData {
@@ -16,7 +19,8 @@ class MainInterface extends ScriptUI.ActionFormData {
 		this.setInformation();
 		this.setButtonsArray([{
 				buttonDef: {
-					text: "传送"
+					text: "传送",
+					iconPath: TexturePath.mainGUI.pointer
 				},
 				condition: (player) => {
 					return true;
@@ -27,18 +31,29 @@ class MainInterface extends ScriptUI.ActionFormData {
 			},
 			{
 				buttonDef: {
-					text: "聊天设置"
+					text: "聊天设置",
+					iconPath: TexturePath.mainGUI.message
 				},
 				condition: (player) => {
 					return false;
 				},
 				event: (player) => {
-
+					
 				}
 			},
+			/*{
+				buttonDef: {
+					text: "队伍",
+					iconPath: TexturePath.mainGUI.FriendsIcon
+				},
+				event: (player)=>{
+					
+				}
+			},*/
 			{
 				buttonDef: {
-					text: "领地"
+					text: "领地",
+					iconPath: TexturePath.mainGUI.icon_new
 				},
 				condition: (player) => {
 					return JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable"));
@@ -50,7 +65,7 @@ class MainInterface extends ScriptUI.ActionFormData {
 			{
 				buttonDef: {
 					text: "自杀",
-					iconPath: undefined
+					iconPath: TexturePath.mainGUI.sword
 				},
 				/*condition: (player) => {
 					return true;
@@ -62,7 +77,7 @@ class MainInterface extends ScriptUI.ActionFormData {
 			{
 				buttonDef: {
 					text: "管理界面",
-					iconPath: undefined
+					iconPath: TexturePath.mainGUI.permissions_op_crown
 				},
 				condition: (player) => {
 					if (USFPlayer.managerAPI.getLevelFromPlayer(player) > 0) {

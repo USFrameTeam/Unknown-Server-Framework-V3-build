@@ -10,4 +10,4 @@ import "./PlayerInteractWithBlockBeforeEvents.js";
 import "./playerInteractWithEntityBeforeEvents.js";
 
 import "./chatSendBeforeEvents.js";
-//import "./EntityHurtBeforeEvents.js";
+import "./EntityHurtBeforeEvents.js";

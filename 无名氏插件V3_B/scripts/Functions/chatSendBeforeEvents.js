@@ -19,13 +19,16 @@ import {
 mc.world.beforeEvents.chatSend.subscribe((event) => {
 	if (mc.world.getDynamicProperty("usf:chatSettings.enable")) {
 		event.cancel = true;
-		let message = ChatOptions.transForm(event.message, event.sender);
-		sendLog({
-			type: "Log",
-			filePath: "usf_log/player/",
-			fileName: event.sender.name,
-			data: message
+		mc.system.run(() => {
+			let message = ChatOptions.transForm(event.message, event.sender);
+			sendLog({
+				type: "Log",
+				filePath: "usf_log/player/",
+				fileName: event.sender.name,
+				data: message
+			});
+			//if(event.sender.)
+			mc.world.sendMessage(message);
 		});
-		mc.world.sendMessage(message);
 	}
 });

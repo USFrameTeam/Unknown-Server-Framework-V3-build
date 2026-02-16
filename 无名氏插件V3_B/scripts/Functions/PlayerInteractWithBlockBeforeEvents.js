@@ -20,7 +20,7 @@ mc.world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 	};
 	//领地交互检测
 	let land = Land.manager.getLandFromPosition(event.block);
-	if ((land !== undefined) && !(USFPlayer.getId(event.player) === land.owner.id)) {
+	if ((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.interactWithBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))) {
 		event.cancel = true;
 	};
 	//领地创建检测

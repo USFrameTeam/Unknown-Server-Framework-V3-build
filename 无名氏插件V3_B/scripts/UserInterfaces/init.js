@@ -7,7 +7,7 @@ import "./landGUI.js";
 //import "./shop/shop.js";
 
 //import "./CustomUIGUI.js";
-import "./developGUI.js";
+//import "./developGUI.js";
 
 let UI = {};
 

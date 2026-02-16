@@ -106,5 +106,6 @@ const ManagerPermissions = {
 	"land": "领地管理",
 	"customUI": "自定义ui管理",
 	"itemEdit": "物品编辑",
-	"chatFormat": "聊天格式编辑"
+	"chatFormat": "聊天格式编辑",
+	"teleportSetting": "传送系统设置"
 };

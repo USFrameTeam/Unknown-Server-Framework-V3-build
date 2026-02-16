@@ -7,6 +7,9 @@ import {
 import {
   USFPlayer
 } from "../utils/PlayerAPI.js";
+import {
+	TexturePath
+} from "./TexturePath.js";
 import * as mc from "@minecraft/server";
 import "./manager/ScoreBoard.js";
 import "./manager/ItemEdit.js";
@@ -31,7 +34,8 @@ class ManagerInterface extends ScriptUI.ActionFormData {
     this.setFather(new (UIManager.getUI("mainGUI"))());
     this.setButtonsArray([{
         buttonDef: {
-          text: "设置计分板"
+          text: "设置计分板",
+          iconPath: TexturePath.managerGUI.scoreboard
         },
         condition: (player) => {
           return (permissions?.scoreboard === true || level === 2);
@@ -42,7 +46,8 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       },
       {
         buttonDef: {
-          text: "领地管理"
+          text: "领地管理",
+          iconPath: TexturePath.mainGUI.icon_new
         },
         condition: (player) => {
           return (permissions?.land === true || level === 2);
@@ -53,7 +58,8 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       },
       {
       	buttonDef: {
-      		text: "自定义UI（半完成）"
+      		text: "自定义UI（半完成）",
+      		iconPath: TexturePath.managerGUI.customUI
       	},
       	condition: (player) => {
           return (permissions?.customUI === true || level === 2);
@@ -64,7 +70,8 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       },
       {
       	buttonDef: {
-      		text: "自定义物品属性"
+      		text: "自定义物品属性",
+      		iconPath: TexturePath.managerAPI.itemData
       	},
       	condition: (player) => {
           return (permissions?.itemEdit === true || level === 2);
@@ -75,7 +82,8 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       },
       {
       	buttonDef: {
-      		text: "聊天格式设置"
+      		text: "聊天格式设置",
+      		iconPath: TexturePath.mainGUI.message
       	},
       	condition: (player) => {
           return (permissions?.chatFormat === true || level === 2);
@@ -84,22 +92,22 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       		new (UIManager.getUI("Manager_ChatFormatEditGUI"))().sendToPlayer(player);
       	}
       },
-      
       {
       	buttonDef: {
-      		text: "传送点上限管理"
+      		text: "传送系统设置",
+      		iconPath: TexturePath.mainGUI.pointer
       	},
-      	condition: (player) => {
-          return level === 2;
-        },
+      	condition: (player)=>{
+      		return (permissions?.teleportSetting === true || level === 2);
+      	},
       	event: (player)=>{
-      		new (UIManager.getUI("Manager_SubordinateManagerGUI"))(player).sendToPlayer(player);
+      		UIManager.getUI("teleportGUI").newTeleportManagerGUI().sendToPlayer(player);
       	}
       },
-      
       {
       	buttonDef: {
-      		text: "管理员设置"
+      		text: "管理员设置",
+      		iconPath: TexturePath.mainGUI.permissions_op_crown
       	},
       	condition: (player) => {
           return level === 2;
@@ -113,7 +121,7 @@ class ManagerInterface extends ScriptUI.ActionFormData {
           text: "插件重要设置（未完成）"
         },
         condition: (player) => {
-          return (level === 2);
+          return false;
         },
         event: (player)=>{
         	

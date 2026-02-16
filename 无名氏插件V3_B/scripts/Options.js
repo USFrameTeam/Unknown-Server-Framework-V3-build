@@ -10,7 +10,7 @@ export const DefaultOptions = {
 	teleportOptions: {
 		enable: true,
 		personal: {
-			maxNumber: 5
+			maxNumber: 20
 		},
 		world: {
 			onlyOpCanEdit: true,
@@ -24,6 +24,14 @@ export const DefaultOptions = {
 };
 //只能修改文件
 export const HardCode = {
-	//只能改大，改小后会有bug
-	LandSizeMax: 1024
+	land: {
+		LandSizeMax: 256,
+		permissions: {
+			"placeBlock": "放置方块",
+			"breakBlock": "破坏方块",
+			"interactWithEntity": "与实体交互",
+			"interactWithBlock": "与方块交互",
+			"attackEntity": "攻击实体"
+		}
+	}
 }

@@ -56,7 +56,7 @@ mc.system.run(() => {
 
 
 class AddCustomUIType extends ScriptUI.ModalFormData {
-	constructor(title = "", warn = null) {
+	constructor(title = "") {
 		super();
 		this.setTitle(`添加自定义界面`);
 		this.setFather(new CustomManagerGUI());
@@ -71,7 +71,7 @@ class AddCustomUIType extends ScriptUI.ModalFormData {
 			{
 				typeId: "textField",
 				id: "ui_title",
-				label: "名称" + (warn === null ? "" : "\n" + warn),
+				label: "名称",
 				setting: {
 					defaultValue: title
 				}
@@ -79,10 +79,6 @@ class AddCustomUIType extends ScriptUI.ModalFormData {
 		]);
 		this.setEvents((player, res) => {
 			if (res.get("ui_type") === 0) {
-				if (res.get("ui_title").includes("|")) {
-					new AddCustomUIType(res.get("ui_title"), "名称不能含“ | ”").sendToPlayer(player);
-					return;
-				};
 				let UIList = CustomUI.getCustomUIList();
 				let IDList = [];
 				for(let customUI of UIList){
@@ -325,10 +321,10 @@ class CustomListUIEdit extends ScriptUI.ModalFormData {
 			},
 			{
 				typeId: "textField",
-				label: "id（复制）",
+				label: "id（全部复制）",
 				id: "ui_id_copy",
 				setting: {
-					defaultValue: uiData.id
+					defaultValue: `\"${uiData.id}\"`
 				}
 			},
 			/*{

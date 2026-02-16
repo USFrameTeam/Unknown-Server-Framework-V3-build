@@ -8,7 +8,7 @@ import {
 import { sendLog } from "../logServer/server.js"
 mc.world.beforeEvents.playerPlaceBlock.subscribe((event)=>{
 	let land = Land.manager.getLandFromPosition(event.block);
-  if((land !== undefined) && !(USFPlayer.getId(event.player) === land.owner.id)){
+  if((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.placeBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))){
     event.cancel = true;
   }
   sendLog({

@@ -6,6 +6,7 @@ import {
 	Vector,
 	IDGenerate
 } from "./API.js";
+import { LZString } from "../libs/lz-string/lz-string.min.js";
 
 let LandIDList = [];
 mc.system.run(() => {
@@ -17,7 +18,7 @@ mc.system.run(() => {
 export class Land {
 	/*
 	  landData: {
-	    member: [{
+	    members: [{
 	    	name: String,
 	    	id: String,
 	    	permissions: []
@@ -48,7 +49,7 @@ export class Land {
 		//破坏方块 放置方块 与实体交互 与方块交互
 		this.name = data.name;
 		this.id = (data.id === undefined ? IDGenerate(LandIDList) : data.id);
-		this.member = [];
+		this.members = {};
 		this.owner = data.owner;
 		this.chunkId = [];
 		this.information = data.information;
@@ -70,8 +71,8 @@ export class Land {
 			this.pos = data.pos;
 			this.dimensionId = data.dimensionId;
 		};
-		if (data.member !== undefined) {
-			this.member = data.member;
+		if (data.members !== undefined) {
+			this.members = data.members;
 		};
 		if(data.chunkId !== undefined){
 			this.chunkId = data.chunkId;
@@ -138,7 +139,7 @@ export class Land {
 			};
 			LandIDList.push(`${land.id}`);
 			mc.world.setDynamicProperty("usf:landIDList", JSON.stringify(LandIDList));
-			mc.world.setDynamicProperty(`usf:landData.${land.id}`, JSON.stringify(land));
+			mc.world.setDynamicProperty(`usf:landData.${land.id}`, LZString.compress(JSON.stringify(land)));
 		},
 
 
@@ -175,7 +176,7 @@ export class Land {
 		
 		
 		getLandFromID(landID){
-			return new Land(JSON.parse(mc.world.getDynamicProperty(`usf:landData.${landID}`)));
+			return new Land(JSON.parse(LZString.decompress(mc.world.getDynamicProperty(`usf:landData.${landID}`))));
 		},
 		
 		
@@ -194,7 +195,7 @@ export class Land {
 		
 		saveLand(landData) {
 			if(LandIDList.includes(landData.id)){
-				mc.world.setDynamicProperty(`usf:landData.${landData.id}`, JSON.stringify(landData));
+				mc.world.setDynamicProperty(`usf:landData.${landData.id}`, LZString.compress(JSON.stringify(landData)));
 			}
 		}
 	};

@@ -39,7 +39,7 @@ export class USFPlayer {
     },
     setLevelFromPlayer: (player, level) => {
     	if(level === 0){
-      	usfManagerList[USFPlayer.getId(player)] = undefined;
+      	delete usfManagerList[USFPlayer.getId(player)];
       	return;
       };
     	if(usfManagerList[USFPlayer.getId(player)] === undefined){
@@ -51,7 +51,7 @@ export class USFPlayer {
     },
     setLevelFromID: (neoUSFID, level, playerName = undefined) => {
     	if(level === 0){
-      	usfManagerList[neoUSFID] = undefined;
+      	delete usfManagerList[neoUSFID];
       	return;
       };
     	if(usfManagerList[neoUSFID] === undefined){

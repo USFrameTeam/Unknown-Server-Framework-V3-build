@@ -4,7 +4,10 @@ import {
 import {
   UIManager
 } from "./init.js";
-import * as mc from "@minecraft/server"
+import {
+	USFPlayer
+} from "../utils/PlayerAPI.js";
+import * as mc from "@minecraft/server";
 //type: 1: 玩家，2: 世界
 
 
@@ -64,7 +67,7 @@ function worldPointListIO(mode, list = []) {
       return pointList;
       break;
   }
-}
+};
 
 
 
@@ -138,6 +141,7 @@ class PointInfo extends ScriptUI.ActionFormData {
     super();
     this.setTitle("传送点设置");
     this.setInformation(`传送点名称：${point.name}\n维度：${point.location.dimensionId}\n坐标：${point.location.x}, ${point.location.y}, ${point.location.z}` + (type === 2 ? `\n创建者：${point.sender}` : ""));
+    this.setFather(new (type === 2 ? PublicWorldPoint : PersonalPoint)());
     this.setButtonsArray([{
       buttonDef: {
         text: "传送"
@@ -152,8 +156,14 @@ class PointInfo extends ScriptUI.ActionFormData {
         text: "编辑"
       },
       condition: (player)=>{
-      	if(type === 0){
-      		
+      	if(type === 2){
+      		let level = USFPlayer.managerAPI.getLevelFromPlayer(player);
+      		if((USFPlayer.managerAPI.getLevelFromPlayer(player) > 0) && (USFPlayer.managerAPI.getPermissionFromPlayer(player)?.teleportSetting || level === 2)){
+      			return true;
+      		};
+      		return false;
+      	} else {
+      		return true;
       	}
       },
       event: (player) => {
@@ -164,9 +174,15 @@ class PointInfo extends ScriptUI.ActionFormData {
         text: "删除"
       },
       condition: (player)=>{
-      	if(type === 0){
-      		
-      	}
+      	let level = USFPlayer.managerAPI.getLevelFromPlayer(player);
+      	if(type === 2){
+      		if((level > 0) && (USFPlayer.managerAPI.getPermissionFromPlayer(player)?.teleportSetting || level === 2)){
+      			return true;
+      		}
+      		return false;
+      	} else {
+      		return true;
+      	};
       },
       event: (player)=>{
       	new CheckPointDelete(point, pointIndex, type).sendToPlayer(player);
@@ -257,12 +273,15 @@ class TeleportGUI extends ScriptUI.ActionFormData {
       		text: "玩家互传"
       	},
       	event: (player)=>{
-      		
+      		new PlayerTPPlayerGUI(player).sendToPlayer(player);
       	}
       }
     ]);
   };
-  static typeId = "teleportGUI"
+  static typeId = "teleportGUI";
+  static newTeleportManagerGUI = () => {
+  	return new TeleportManagerGUI();
+  }
 };
 
 mc.system.run(() => {
@@ -282,6 +301,12 @@ class PersonalPoint extends PointList {
       this.setButtonsArray([{
         buttonDef: {
           text: "添加传送点"
+        },
+        condition: (player)=>{
+        	if(pointList.length >= JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.personal.maxNumber"))){
+        		return false;
+        	};
+        	return true;
         },
         event: (player) => {
           new AddPoint(1).sendToPlayer(player);
@@ -306,7 +331,17 @@ class PublicWorldPoint extends PointList {
           text: "添加传送点"
         },
         condition: (player)=>{
-        	
+        	let level = USFPlayer.managerAPI.getLevelFromPlayer(player);
+        	if(JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.world.maxNumber")) <= pointList.length){
+        		return false;
+        	};
+        	if(JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.world.onlyOpCanEdit"))){
+        		return true;
+        	};
+      		if((level > 0) && (USFPlayer.managerAPI.getPermissionFromPlayer(player)?.teleportSetting || level === 2)){
+      			return true;
+      		};
+      		return false;
         },
         event: (player) => {
           new AddPoint(2).sendToPlayer(player);
@@ -332,38 +367,93 @@ class CheckPointDelete extends ScriptUI.MessageFormData {
       new (type === 1 ? PersonalPoint : PublicWorldPoint)().sendToPlayer(player);
     });
   }
-}
+};
 
-//管理
-class PointsManagerGUI extends ScriptUI.ActionFormData {
+class PlayerTPPlayerGUI extends ScriptUI.ModalFormData {
+	constructor(player){
+		super();
+		let playerNameList = [];
+		let playerList = mc.world.getAllPlayers();
+		for(let oplayer of playerList){
+			playerNameList.push(oplayer.name);
+		};
+		this.setTitle("玩家互传");
+		this.setInformation("注：后来传送的玩家可能会覆盖掉你的请求");
+		this.setFather(new TeleportGUI());
+		this.setButtonsArray([{
+			typeId: "dropdown",
+			label: "目标玩家",
+			id: "targetPlayer",
+			setting: {
+				items: playerNameList,
+				defaultValue: 0
+			}
+		},
+		{
+			typeId: "toggle",
+			label: "传送到目标玩家 | 将目标玩家传送到此地",
+			id: "targetDir",
+			setting: {
+				defaultValue: false
+			}
+		}]);
+		this.setEvents((player, ret)=>{
+			playerList[ret.get("targetPlayer")].tpPlayerData = {
+				dir: ret.get("targetDir"),
+				time: Date.now(),
+				player: player
+			};
+			if(ret.get("targetDir")){
+				playerList[ret.get("targetPlayer")].sendMessage(`${player.name}请求你传送到他\n60秒内输入指令"/func tpa"同意传送`);
+			} else {
+				playerList[ret.get("targetPlayer")].sendMessage(`${player.name}请求传送到你\n60秒内输入指令"/func tpa"同意传送`);
+			}
+		});
+	};
+};
+
+//传送系统设置
+
+class TeleportManagerGUI extends ScriptUI.ModalFormData {
 	constructor(){
-		this.setTitle("传送点管理");
+		super();
+		this.setTitle("传送系统设置");
 		this.setButtonsArray([
 			{
-				buttonDef: {
-					text: "个人传送点上限设置"
-				},
-				event: (player)=>{
-					
+				label: "个人传送点数量上限",
+				typeId: "slider",
+				id: "personalPointMaxNum",
+				setting: {
+					minValue: 0,
+					maxValue: 50,
+					defaultValue: (JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.personal.maxNumber"))),
+					step: 1
 				}
 			},
 			{
-				buttonDef: {
-					text: "世界公共点设置"
-				},
-				event: (player)=>{
-					
+				label: "世界传送点数量上限",
+				typeId: "slider",
+				id: "worldPointMaxNum",
+				setting: {
+					minValue: 0,
+					maxValue: 50,
+					defaultValue: (JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.world.maxNumber"))),
+					step: 1
+				}
+			},
+			{
+				typeId: "toggle",
+				id: "worldPoint_managerSet",
+				label: "有管理权限才能设置世界传送点",
+				setting: {
+					defaultValue: (JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.world.onlyOpCanEdit")))
 				}
 			}
 		]);
-	}
-};
-
-/*this.setButtonsArray([{
-        buttonDef: {
-          text: "添加传送点"
-        },
-        event: (player) => {
-          new AddPoint(2).sendToPlayer(player);
-        }
-      }]);*/
+		this.setEvents((player, res)=>{
+			mc.world.setDynamicProperty("usf:teleportOptions.personal.maxNumber", JSON.stringify(res.get("personalPointMaxNum")));
+			mc.world.setDynamicProperty("usf:teleportOptions.world.maxNumber", JSON.stringify(res.get("worldPointMaxNum")));
+			mc.world.setDynamicProperty("usf:teleportOptions.world.onlyOpCanEdit", JSON.stringify(res.get("worldPoint_managerSet")));
+		});
+	};
+}
