@@ -325,7 +325,17 @@ class LandManagerGUI extends ScriptUI.ActionFormData {
 	constructor() {
 		super();
 		this.setTitle("领地管理界面");
-		this.setButtonsArray([{
+		this.setButtonsArray([
+			{
+				buttonDef: {
+					text: `领地功能: ${JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable")) ? "开" : "关"}`
+				},
+				event: (player)=>{
+					mc.world.setDynamicProperty("usf:landOptions.enable", JSON.stringify(!JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable"))));
+					new LandManagerGUI().sendToPlayer(player);
+				}
+			},
+			{
 				buttonDef: {
 					text: "设置领地花费"
 				},

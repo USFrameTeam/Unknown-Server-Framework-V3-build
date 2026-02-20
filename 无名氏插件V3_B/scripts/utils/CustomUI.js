@@ -61,11 +61,11 @@ export class CustomUI {
 	};
 	
 	static getStringData(uiData) {
-		return LZString.compress(JSON.stringify(uiData));
+		return LZString.compressToBase64(JSON.stringify(uiData));
 	};
 
 	static toData(strUIData) {
-		return JSON.parse(LZString.decompress(strUIData));
+		return JSON.parse(LZString.decompressFromBase64(strUIData));
 	};
 	
 	static getCustomUIList() {

@@ -71,7 +71,7 @@ class ManagerInterface extends ScriptUI.ActionFormData {
       {
       	buttonDef: {
       		text: "自定义物品属性",
-      		iconPath: TexturePath.managerAPI.itemData
+      		iconPath: TexturePath.managerGUI.itemData
       	},
       	condition: (player) => {
           return (permissions?.itemEdit === true || level === 2);

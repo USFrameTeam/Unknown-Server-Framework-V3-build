@@ -20,5 +20,11 @@ export const TexturePath = {
 	//部分通用UI
 	common: {
 		"add": textureRootPath + "anvil-plus.png"
+	},
+	//传送点
+	teleport: {
+		"random": textureRootPath + "icon_random.png",
+		"world": textureRootPath + "worldsIcon.png",
+		"personal": textureRootPath + "Friend2.png"
 	}
 }

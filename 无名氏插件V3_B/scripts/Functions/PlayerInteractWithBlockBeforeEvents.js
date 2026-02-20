@@ -22,6 +22,7 @@ mc.world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
 	let land = Land.manager.getLandFromPosition(event.block);
 	if ((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.interactWithBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))) {
 		event.cancel = true;
+		event.player.sendMessage("你无权与领地内方块交互！");
 	};
 	//领地创建检测
 	if (event.player?.land?.create) {

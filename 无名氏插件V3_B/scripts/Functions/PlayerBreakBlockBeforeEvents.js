@@ -13,7 +13,9 @@ mc.world.beforeEvents.playerBreakBlock.subscribe((event) => {
 	let land = Land.manager.getLandFromPosition(event.block);
 	if ((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.breakBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))) {
 		event.cancel = true;
+		event.player.sendMessage("你无权破坏领地内方块！");
 	};
+
 	mc.system.run(() => {
 		sendLog({
 			type: "Log",

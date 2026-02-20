@@ -17,7 +17,7 @@ import {
 
 
 mc.world.beforeEvents.chatSend.subscribe((event) => {
-	if (mc.world.getDynamicProperty("usf:chatSettings.enable")) {
+	if (JSON.parse(mc.world.getDynamicProperty("usf:chatSettings.enable"))) {
 		event.cancel = true;
 		mc.system.run(() => {
 			let message = ChatOptions.transForm(event.message, event.sender);

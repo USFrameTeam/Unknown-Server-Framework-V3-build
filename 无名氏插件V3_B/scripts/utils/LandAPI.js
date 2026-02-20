@@ -139,7 +139,7 @@ export class Land {
 			};
 			LandIDList.push(`${land.id}`);
 			mc.world.setDynamicProperty("usf:landIDList", JSON.stringify(LandIDList));
-			mc.world.setDynamicProperty(`usf:landData.${land.id}`, LZString.compress(JSON.stringify(land)));
+			mc.world.setDynamicProperty(`usf:landData.${land.id}`, LZString.compressToBase64(JSON.stringify(land)));
 		},
 
 
@@ -160,6 +160,9 @@ export class Land {
 
 
 		getLandList(option = {}) {
+			if(!JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable"))){
+				return [];
+			};
 			let landList = [];
 			for (let landID of LandIDList) {
 				let land = Land.manager.getLandFromID(landID);
@@ -176,11 +179,14 @@ export class Land {
 		
 		
 		getLandFromID(landID){
-			return new Land(JSON.parse(LZString.decompress(mc.world.getDynamicProperty(`usf:landData.${landID}`))));
+			return new Land(JSON.parse(LZString.decompressFromBase64(mc.world.getDynamicProperty(`usf:landData.${landID}`))));
 		},
 		
 		
 		getLandFromPosition(position){
+			if(!JSON.parse(mc.world.getDynamicProperty("usf:landOptions.enable"))){
+				return undefined;
+			};
 			let currentChunkGroup = new ChunkGroup(0, position);
 			currentChunkGroup.loadData();
 			for(let landID of currentChunkGroup.getData(0)){
@@ -195,7 +201,7 @@ export class Land {
 		
 		saveLand(landData) {
 			if(LandIDList.includes(landData.id)){
-				mc.world.setDynamicProperty(`usf:landData.${landData.id}`, LZString.compress(JSON.stringify(landData)));
+				mc.world.setDynamicProperty(`usf:landData.${landData.id}`, LZString.compressToBase64(JSON.stringify(landData)));
 			}
 		}
 	};

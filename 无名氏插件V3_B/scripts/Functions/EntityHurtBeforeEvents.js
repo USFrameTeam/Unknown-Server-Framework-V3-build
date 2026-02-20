@@ -14,6 +14,7 @@ mc.world.beforeEvents.entityHurt.subscribe((events) => {
 		let land = Land.manager.getLandFromPosition(events.hurtEntity.location);
 		if ((land !== undefined) && !((land.members[USFPlayer.getId(events.damageSource.damagingEntity)]?.permissions?.attackEntity === true) || (USFPlayer.getId(events.damageSource.damagingEntity) === land.owner.id))) {
 			events.cancel = true;
+			events.damageSource.damagingEntity.sendMessage("你无权攻击领地内生物");
 		};
 	}
 });

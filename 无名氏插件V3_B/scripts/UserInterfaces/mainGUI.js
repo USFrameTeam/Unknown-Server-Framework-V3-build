@@ -23,7 +23,7 @@ class MainInterface extends ScriptUI.ActionFormData {
 					iconPath: TexturePath.mainGUI.pointer
 				},
 				condition: (player) => {
-					return true;
+					return JSON.parse(mc.world.getDynamicProperty("usf:teleportOptions.enable"));
 				},
 				event: (player) => {
 					new(UIManager.getUI("teleportGUI"))().sendToPlayer(player);

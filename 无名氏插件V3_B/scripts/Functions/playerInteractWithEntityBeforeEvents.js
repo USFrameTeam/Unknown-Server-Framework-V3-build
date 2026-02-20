@@ -12,6 +12,7 @@ mc.world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
 	let land = Land.manager.getLandFromPosition(event.target.location);
 	if ((land !== undefined) && !((USFPlayer.getId(event.player) === land.owner.id) || (land.members[USFPlayer.getId(event.player)]?.permissions?.interactWithEntity === true))) {
 		event.cancel = true;
+		event.player.sendMessage("你无权与领地内实体交互！");
 	};
 	mc.system.run(() => {
 		sendLog({

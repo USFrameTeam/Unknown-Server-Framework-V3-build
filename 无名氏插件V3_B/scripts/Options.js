@@ -10,16 +10,28 @@ export const DefaultOptions = {
 	teleportOptions: {
 		enable: true,
 		personal: {
+			enable: true,
 			maxNumber: 20
 		},
 		world: {
+			enable: true,
 			onlyOpCanEdit: true,
 			maxNumber: 5
+		},
+		random: {
+			enable: true,
+			distance: 10000
+		},
+		playerTp: {
+			enable: true
 		}
 	},
 	landOptions: {
 		enable: true,
-		cost: 1
+		cost: 1,
+		personal: {
+			maxNumber: 10
+		}
 	}
 };
 //只能修改文件

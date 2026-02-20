@@ -31,6 +31,10 @@ export function Dichotomy(list, number, method = (element)=>{
 	return index;
 };
 
+export function RandomInt(max, min = 0){
+	return (Math.round(Math.random() * max * 2) + min);
+};
+
 export class Vector {
 	//向量相加
   static add(vector1, vector2) {

@@ -73,12 +73,12 @@ class EditChatGUI extends ScriptUI.ModalFormData {
 			label: "聊天格式",
 			id: "chat_format",
 			setting: {
-				defaultValue: JSON.parse(player !== null ? (player.getDynamicProperty("usf:chat_format") ? player.getDynamicProperty("usf:chat_format") : mc.world.getDynamicProperty("usf:chatSettings.defaultHeader")) : mc.world.getDynamicProperty("usf:chatSettings.defaultHeader"))
+				defaultValue: "" + JSON.parse(player !== null ? (player.getDynamicProperty("usf:chat_format") ? player.getDynamicProperty("usf:chat_format") : mc.world.getDynamicProperty("usf:chatSettings.defaultHeader")) : mc.world.getDynamicProperty("usf:chatSettings.defaultHeader"))
 			}
 		}]);
-		this.setEvents((player, result)=>{
+		this.setEvents((p, result)=>{
 			if(player !== null){
-				player.setDynamicProperty("usf:chat_format", JSON.stringify(result.get("chat_format")));
+				player.setDynamicProperty("usf:chat_format", JSON.stringify((result.get("chat_format").length === 0) ? undefined : result.get("chat_format")));
 			} else {
 				mc.world.setDynamicProperty("usf:chatSettings.defaultHeader", JSON.stringify(result.get("chat_format")));
 			}

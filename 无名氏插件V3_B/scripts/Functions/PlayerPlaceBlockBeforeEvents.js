@@ -10,6 +10,7 @@ mc.world.beforeEvents.playerPlaceBlock.subscribe((event)=>{
 	let land = Land.manager.getLandFromPosition(event.block);
   if((land !== undefined) && !((land.members[USFPlayer.getId(event.player)]?.permissions?.placeBlock === true) || (USFPlayer.getId(event.player) === land.owner.id))){
     event.cancel = true;
+    event.player.sendMessage("你无权在领地内放置方块！");
   }
   sendLog({
   	type: "Log",
